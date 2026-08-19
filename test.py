@@ -1,9 +1,7 @@
 from questions import questions
 import random
+from datetime import date
+
+print(date.today())
 
 
-q = {
-    'ara': 'a',
-    'ararae': 'as'
-}
-print(random.choice(q.keys))
