@@ -1,4 +1,4 @@
-questions = {
+questionsDict = {
     "What is the capital of France?": "Paris",
     "What planet is known as the Red Planet?": "Mars",
     "What is 12 * 8?": "96",
