@@ -1,6 +1,6 @@
 import sys
 import random
-from questions import questionsDict
+from questions import questionsDict, indices
 from datetime import date
 
 
@@ -12,11 +12,12 @@ def main():
         answers10 = []
         questionsList = list(questionsDict)
         questions10 = get_10_questions(questionsList, questions10, used_questions)
-        all_time_highscore = get_all_time_highscore()
+        all_time_highscore = get_all_time_highscore(highscore)
         answers10 = ask_10_questions(questions10, answers10, all_time_highscore, highscore)
-        score = validate(questions10, answers10, highscore, all_time_highscore)[0]
-        highscore = validate(questions10, answers10, highscore, all_time_highscore)[1]
-        all_time_highscore = validate(questions10, answers10, highscore, all_time_highscore)[2]
+        scores = validate(questions10, answers10, highscore, all_time_highscore)
+        score = scores[0]
+        highscore = scores[1]
+        all_time_highscore = scores[2]
         print(f'{score}/10')
         retry = save_highscore(highscore)
         if retry == 'Stop':
@@ -47,18 +48,19 @@ def ask_10_questions(q10, a10, aths, chs):
 
 def validate(q10, a10, highscore, all_time_highscore):
     score = 0
-    for a, q in zip(a10, q10):
+    current_scores = []
+    for a, q, i in zip(a10, q10, indices):
         if a == questionsDict[q].lower().strip():
-            print(f'{a10.index(a)}: Correct')
+            print(f'{i}: Correct')
             score += 1
         else:
-            print(f'{a10.index(a)}: Incorrect')
+            print(f'{i}: Incorrect')
             score = score
     if score >= highscore:
         highscore = score
     if score >= all_time_highscore:
         all_time_highscore = score
-    
+    current_scores.append(score)
     return [score, highscore, all_time_highscore]
 
 def save_highscore(highscore):
@@ -69,24 +71,35 @@ def save_highscore(highscore):
         elif r == 'no':
             try:
                 with open('HighScore.txt', 'a') as file:
-                    file.write(f'On {date.today()} the HighScore was: {highscore}.\n')
+                    file.write(f'On {date.today()} the HighScore was: {highscore}\n')
                 return 'Stop'
             except OSError:
                 sys.exit('Could not save HighScore to a file, sorry.')
 
-def get_all_time_highscore():
+def get_all_time_highscore(highscore):
     lines = []
+    past_scores = []
     try:
         with open('HighScore.txt', 'r') as file:
             for line in file:
                 lines.append(line)
-            last_line = lines[-1]
-            _, last_highscore = last_line.split(': ')
-            last_highscore = last_highscore.strip('.')
-    except (OSError, ValueError, IndexError):
-        last_highscore = 0
 
-    return int(last_highscore)
+            for line in lines:
+                _, past_highscores = line.split(': ')
+                past_highscores = past_highscores.strip().lower()
+                past_scores.append(int(past_highscores))
+            
+            past_highscore = 0
+            for i in range(len(past_scores)):
+                if past_highscore <= past_scores[i]:
+                    past_highscore = past_scores[i]
+        if past_highscore <= highscore:
+            past_highscore = highscore
+
+    except (OSError, ValueError, IndexError):
+        past_highscore = 0
+
+    return past_highscore
 
 if __name__ == '__main__':
     main()
