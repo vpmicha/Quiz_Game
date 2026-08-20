@@ -14,7 +14,9 @@ def main():
         questions10 = get_10_questions(questionsList, questions10, used_questions)
         all_time_highscore = get_all_time_highscore()
         answers10 = ask_10_questions(questions10, answers10, all_time_highscore, highscore)
-        score = validate(questions10, answers10, highscore)
+        score = validate(questions10, answers10, highscore, all_time_highscore)[0]
+        highscore = validate(questions10, answers10, highscore, all_time_highscore)[1]
+        all_time_highscore = validate(questions10, answers10, highscore, all_time_highscore)[2]
         print(f'{score}/10')
         retry = save_highscore(highscore)
         if retry == 'Stop':
@@ -46,28 +48,28 @@ def ask_10_questions(q10, a10, aths, chs):
 def validate(q10, a10, highscore, all_time_highscore):
     score = 0
     for a, q in zip(a10, q10):
-        if a == questionsDict[q]:
-            print(f'{a10.index()}: Correct')
+        if a == questionsDict[q].lower().strip():
+            print(f'{a10.index(a)}: Correct')
             score += 1
         else:
-            print(f'{a10.index()}: Incorrect')
+            print(f'{a10.index(a)}: Incorrect')
             score = score
     if score >= highscore:
         highscore = score
     if score >= all_time_highscore:
         all_time_highscore = score
     
-    return score
+    return [score, highscore, all_time_highscore]
 
 def save_highscore(highscore):
     while True:
         r = input('Do you want to play again?(Yes/No) ').strip().lower()
-        if r == 'Yes':
+        if r == 'yes':
             return True
-        elif r == 'No':
+        elif r == 'no':
             try:
                 with open('HighScore.txt', 'a') as file:
-                    file.write(f'On {date.today()} the HighScore was: {highscore}.')
+                    file.write(f'On {date.today()} the HighScore was: {highscore}.\n')
                 return 'Stop'
             except OSError:
                 sys.exit('Could not save HighScore to a file, sorry.')
@@ -81,10 +83,11 @@ def get_all_time_highscore():
             last_line = lines[-1]
             _, last_highscore = last_line.split(': ')
             last_highscore = last_highscore.strip('.')
-    except OSError:
+    except (OSError, ValueError, IndexError):
         last_highscore = 0
 
-    return last_highscore
+    return int(last_highscore)
 
-
+if __name__ == '__main__':
+    main()
 
