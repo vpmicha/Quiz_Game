@@ -13,7 +13,8 @@ def main():
         answers10 = []
         questionsList = list(questionsDict)
         questions10 = get_10_questions(questionsList, questions10, used_questions)
-        answers10 = ask_10_questions(questions10, answers10)
+        all_time_highscore = get_all_time_highscore()
+        answers10 = ask_10_questions(questions10, answers10, all_time_highscore, highscore)
         score = validate(questions10, answers10, highscore)
         print(f'{score}/10')
         retry = save_highscore(highscore)
@@ -32,16 +33,18 @@ def get_10_questions(qList, q10, used_q):
             continue
     return q10
 
-def ask_10_questions(q10, a10):
+def ask_10_questions(q10, a10, aths, chs):
     try:
         for question in q10:
+            print(f'All time HighScore: {aths}/Current HighScore: {chs}')
+            print(chs)
             print(question)
             a10.append(input('Answer: ').strip().lower())
         return a10
     except (EOFError, KeyboardInterrupt):
         sys.exit('Thank you for playing!')
 
-def validate(q10, a10, highscore):
+def validate(q10, a10, highscore, all_time_highscore):
     score = 0
     for a, q in zip(a10, q10):
         if a == questionsDict[q]:
@@ -52,6 +55,9 @@ def validate(q10, a10, highscore):
             score = score
     if score >= highscore:
         highscore = score
+    if score >= all_time_highscore:
+        all_time_highscore = score
+    
     return score
 
 def save_highscore(highscore):
@@ -61,9 +67,25 @@ def save_highscore(highscore):
             return True
         elif r == 'No':
             try:
-                with open('Quiz_Game HighScore', 'a') as file:
-                    file.write(f'On {date.today()} the HighScore was {highscore}')
+                with open('HighScore.txt', 'a') as file:
+                    file.write(f'On {date.today()} the HighScore was: {highscore}.')
                 return 'Stop'
             except OSError:
                 sys.exit('Could not save HighScore to a file, sorry.')
+
+def get_all_time_highscore():
+    lines = []
+    try:
+        with open('HighScore.txt', 'r') as file:
+            for line in file:
+                lines.append(line)
+            last_line = lines[-1]
+            _, last_highscore = last_line.split(': ')
+            last_highscore = last_highscore.strip('.')
+    except OSError:
+        last_highscore = 0
+
+    return last_highscore
+
+
 
