@@ -1,20 +1,24 @@
+from os import SCHED_OTHER
 import sys
 import random
 from questions import questionsDict
 from datetime import date
 
+
 def main():
-    retry = False
-    while retry:
+    highscore = 0
+    while True:
         used_questions = []
         questions10 = []
         answers10 = []
         questionsList = list(questionsDict)
         questions10 = get_10_questions(questionsList, questions10, used_questions)
         answers10 = ask_10_questions(questions10, answers10)
-        score = validate(questions10, answers10)
+        score = validate(questions10, answers10, highscore)
         print(f'{score}/10')
-
+        retry = save_highscore(highscore)
+        if retry == 'Stop':
+            sys.exit('Thank you for playing!')
 
 def get_10_questions(qList, q10, used_q):
     while True:
@@ -29,18 +33,37 @@ def get_10_questions(qList, q10, used_q):
     return q10
 
 def ask_10_questions(q10, a10):
-    for question in q10:
-        print(question)
-        a10.append(input('Answer: ').strip().lower())
-    return a10
+    try:
+        for question in q10:
+            print(question)
+            a10.append(input('Answer: ').strip().lower())
+        return a10
+    except (EOFError, KeyboardInterrupt):
+        sys.exit('Thank you for playing!')
 
-def validate(q10, a10):
+def validate(q10, a10, highscore):
     score = 0
     for a, q in zip(a10, q10):
         if a == questionsDict[q]:
-            print('Correct')
+            print(f'{a10.index()}: Correct')
             score += 1
         else:
-            print('Incorrect')
+            print(f'{a10.index()}: Incorrect')
             score = score
+    if score >= highscore:
+        highscore = score
     return score
+
+def save_highscore(highscore):
+    while True:
+        r = input('Do you want to play again?(Yes/No) ').strip().lower()
+        if r == 'Yes':
+            return True
+        elif r == 'No':
+            try:
+                with open('Quiz_Game HighScore', 'a') as file:
+                    file.write(f'On {date.today()} the HighScore was {highscore}')
+                return 'Stop'
+            except OSError:
+                sys.exit('Could not save HighScore to a file, sorry.')
+
