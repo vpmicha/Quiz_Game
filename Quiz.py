@@ -1,4 +1,3 @@
-from os import SCHED_OTHER
 import sys
 import random
 from questions import questionsDict
