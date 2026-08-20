@@ -37,8 +37,8 @@ def get_10_questions(qList, q10, used_q):
 
 def ask_10_questions(q10, a10, aths, chs):
     try:
+        print(f'All time HighScore: {aths}/Current HighScore: {chs}')
         for question in q10:
-            print(f'All time HighScore: {aths}/Current HighScore: {chs}')
             print(question)
             a10.append(input('Answer: ').strip().lower())
         return a10
