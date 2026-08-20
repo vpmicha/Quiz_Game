@@ -39,7 +39,6 @@ def ask_10_questions(q10, a10, aths, chs):
     try:
         for question in q10:
             print(f'All time HighScore: {aths}/Current HighScore: {chs}')
-            print(chs)
             print(question)
             a10.append(input('Answer: ').strip().lower())
         return a10
@@ -48,19 +47,16 @@ def ask_10_questions(q10, a10, aths, chs):
 
 def validate(q10, a10, highscore, all_time_highscore):
     score = 0
-    current_scores = []
     for a, q, i in zip(a10, q10, indices):
         if a == questionsDict[q].lower().strip():
             print(f'{i}: Correct')
             score += 1
         else:
             print(f'{i}: Incorrect')
-            score = score
     if score >= highscore:
         highscore = score
     if score >= all_time_highscore:
         all_time_highscore = score
-    current_scores.append(score)
     return [score, highscore, all_time_highscore]
 
 def save_highscore(highscore):
